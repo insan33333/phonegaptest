@@ -1,0 +1,151 @@
+<!DOCTYPE HTML>
+<html lang="ES">
+<head>
+  <meta charset="UTF-8">
+	<title></title>
+	<style>
+
+	</style>
+	<script type="text/javascript">
+		window.onload=function(){
+			var id = document.getElementById('id');
+			var nombre = document.getElementById('nombre');
+			var padre = document.getElementById('padre');
+			var db = window.openDatabase("Database", "1.0", "Demo PhoneGap", 200000);
+
+			document.getElementById('crear').onclick=function(){
+      			db.transaction(crearDB, errorCB, correctoCB);	
+			}
+
+			document.getElementById("modificar").onclick=function(){
+      			db.transaction(modificarDB, errorM, correctoM);
+			}
+
+			document.getElementById("borrar").onclick=function(){
+      			db.transaction(borrarDB, errorB, correctoB);
+			}
+
+			document.getElementById("ver").onclick=function(){
+      			db.transaction(queryDB, errorCB);
+			}
+
+			document.getElementById("insertar").onclick=function(){
+				db.transaction(insertarDB,errorI,correctoI);
+			}
+			////////////////////////////////////////////////////////////////////////////////
+
+			 function queryDB(tx) {
+       			 tx.executeSql('SELECT * FROM datos', [], mostrarDB, errorCB);
+   			 }	
+
+			
+   			//////////////////////////////////////////////////////////////////////////////////
+
+			function crearDB(tx) {
+        		tx.executeSql('DROP TABLE IF EXISTS datos');
+        		tx.executeSql('CREATE TABLE IF NOT EXISTS datos (id INTEGER PRIMARY KEY, nombre TEXT)');
+   			}
+
+   			function modificarDB(tx) {
+   				tx.executeSql('Update datos Set nombre = "' + nombre.value + '" Where id= ' + id.value);
+
+   			}
+
+   			function insertarDB(tx){
+   				var nombre = document.getElementById('nombre').value;
+				var id = document.getElementById('id').value;
+
+				tx.executeSql('CREATE TABLE IF NOT EXISTS datos (id INTEGER PRIMARY KEY, nombre TEXT)');
+      			tx.executeSql("INSERT INTO datos (id, nombre) VALUES (" + id + ",'" + nombre + "')");
+
+
+   			}
+
+   			function borrarDB(tx){
+   				tx.executeSql('Delete From datos Where id=' + id.value);
+   			}
+
+   			function mostrarDB(tx,results){
+   				padre.innerHTML="";
+				var h2 = document.createElement("h4");
+				var len = results.rows.length;
+      			h2.innerHTML = "Tabla Datos: " + len + " filas encontradas.";
+      			padre.appendChild(h2);
+        		for (var i=0; i<len; i++){
+        			p = document.createElement("p");
+         		  	p.innerHTML = "Fila = " + i + " ID = " + results.rows.item(i).id + " Nombre =  " + results.rows.item(i).nombre;
+         		  	padre.appendChild(p);
+        		}
+        	}
+
+        	///////////////////////////////////////////////////////////
+
+        	function correctoI(){
+        		alert("se ha insertado!!!");
+        	}
+
+        	function correctoB(){
+        		alert("se ha borrado!!!");
+        	}
+
+        	function correctoCB() {
+        		alert("Base de datos creada!!!");
+    		}
+
+    		function correctoM() {
+        		alert("se ha modificado!!!");
+    		}
+			
+			/////////////////////////////////////////////////////////////////////////////////
+
+			function errorCB(tx, err) {
+       			 alert("Error procesando SQL: "+err);
+   			}
+
+   			function errorI(tx, err) {
+       			 alert("Error procesando SQL: al insertar " + err);
+   			}
+
+   			function errorB(tx, err) {
+       			 alert("Error procesando SQL: al borrar "+err);
+   			}
+
+   			function errorM(tx, err) {
+       			 alert("Error procesando SQL: al modificar "+err);
+   			}
+
+			
+
+		}
+	</script>
+</head>
+<body>
+	<p>Ejercicio con base de datos</p>
+	<form>
+		<table>
+			<tr>
+				<td><label>Id:</label></td>
+				<td><input type="text" id="id"></td>
+			</tr>
+			<tr>
+				<td><label>Nombre:</label></td>
+				<td><input type="text" id="nombre"></td>
+			</tr>
+			<tr>
+				<td>
+					<input type="button" value="ver" id="ver">
+					<input type="button" value="modificar" id="modificar">
+				</td>
+				<td>
+					<input type="button" value="borrar" id="borrar">
+					<input type="button" value="crear" id="crear">
+					<input type="button" value="insertar" id="insertar">
+				</td>
+			</tr>
+		</table>
+	</form> 
+	<div id="padre">
+
+	</div>
+</body>
+</html>
